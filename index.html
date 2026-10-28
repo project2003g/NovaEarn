@@ -31,4 +31,23 @@ $("lang").onchange=e=>{lang=e.target.value;render()};$("confirm").onclick=()=>{i
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script></body></html>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC6mwZxlXS2ouHbf3YU-ANZP9RgQm359FM",
+  authDomain: "novaearn-27e85.firebaseapp.com",
+  projectId: "novaearn-27e85",
+  storageBucket: "novaearn-27e85.firebasestorage.app",
+  messagingSenderId: "320515741153",
+  appId: "1:320515741153:web:ac66929e6601ab61e56ea0"
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+const novaAuth = firebase.auth();
+const novaDb = firebase.firestore();
+
+console.log("NovaEarn Firebase initialized");
+</script></body></html>
