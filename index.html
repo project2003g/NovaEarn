@@ -82,15 +82,54 @@ const firebaseConfig = {
 };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const novaAuth = firebase.auth();
+
 const novaDb = firebase.firestore();
 
-function setAuthStatus(message){document.getElementById("authStatus").textContent=message;}
+async function saveUserProfile(user) {
+  const userRef = novaDb.collection("users").doc(user.uid);
+  const userDoc = await userRef.get();
+
+  const profile = {
+    uid: user.uid,
+    email: user.email || null,
+    displayName: user.displayName || null,
+    lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  if (!userDoc.exists) {
+    profile.createdAt =
+      firebase.firestore.FieldValue.serverTimestamp();
+  }
+
+  await userRef.set(profile, { merge: true });
+}
+
+function setAuthStatus(message) {
+  document.getElementById("authStatus").textContent = message;
+}
+
 function getAuthValues(){return {email:document.getElementById("authEmail").value.trim(),password:document.getElementById("authPassword").value};}
-novaAuth.onAuthStateChanged(user=>{
-  const logoutButton=document.getElementById("logoutBtn");
-  if(user){setAuthStatus("Signed in as "+(user.email||user.displayName||"Google user"));logoutButton.hidden=false;}
-  else{setAuthStatus("You are not signed in.");logoutButton.hidden=true;}
+
+novaAuth.onAuthStateChanged(async user => {
+  const logoutButton = document.getElementById("logoutBtn");
+
+  if (user) {
+    logoutButton.hidden = false;
+    setAuthStatus("Signed in as " + (user.email || user.displayName || "Google user"));
+
+    try {
+      await saveUserProfile(user);
+      setAuthStatus("Signed in. Account profile saved successfully.");
+    } catch (error) {
+      console.error("Profile save error:", error);
+      setAuthStatus("Signed in, but profile save failed: " + error.message);
+    }
+  } else {
+    setAuthStatus("You are not signed in.");
+    logoutButton.hidden = true;
+  }
 });
+
 document.getElementById("signupBtn").addEventListener("click",async()=>{
   const {email,password}=getAuthValues();
   if(!email||password.length<6){setAuthStatus("Enter a valid email and a password of at least 6 characters.");return;}
