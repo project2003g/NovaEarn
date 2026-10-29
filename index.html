@@ -196,7 +196,7 @@ async function loadNovaDemoState(user) {
     update();
     renderProfile();
   } catch (error) {
-    console.error("Could not load demo points:", error);
+    console.error("Could not load demo points:", error.code, error.message);
     setAuthStatus("Signed in, but points could not be synced.");
   }
 }
