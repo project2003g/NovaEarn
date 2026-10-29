@@ -27,6 +27,8 @@ section{padding:28px 0}.head{display:flex;justify-content:space-between;align-it
 .modalback{display:none;position:fixed;inset:0;background:#000b;z-index:5;place-items:center;padding:20px}.modalback.open{display:grid}.modal{max-width:440px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
 .toast{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#fff;color:#111;padding:12px 16px;border-radius:12px;z-index:10}.toast.show{display:block}
 .auth-fields{display:grid;gap:8px;margin:16px 0}.auth-fields input{width:100%}#authStatus{overflow-wrap:anywhere}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.profile-card{background:linear-gradient(145deg,#1b2035,#14182a);border:1px solid var(--line);border-radius:20px;padding:20px}.profile-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}.avatar{display:grid;place-items:center;width:58px;height:58px;flex:0 0 58px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--cyan));color:#101321;font-size:1.4rem;font-weight:900}.profile-meta{min-width:0}.profile-meta strong,.profile-meta small{display:block;overflow-wrap:anywhere}.history-list{display:grid;gap:9px}.history-item{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.history-item:last-child{border-bottom:0}.history-item small{display:block;color:var(--muted)}.history-empty{color:var(--muted);padding:12px 0}
+@media(max-width:520px){.profile-grid{grid-template-columns:1fr}}
 [dir=rtl] body{text-align:right}[dir=rtl] .nav,[dir=rtl] .head,[dir=rtl] .taskfoot{direction:rtl}
 @media(max-width:760px){.hero{grid-template-columns:1fr;padding-top:32px}.grid{grid-template-columns:repeat(2,1fr)}.links{display:none}}
 @media(max-width:520px){.grid,.steps,.columns{grid-template-columns:1fr}.hero h1{font-size:2.7rem}.head{align-items:flex-start;flex-direction:column}}
@@ -50,6 +52,19 @@ section{padding:28px 0}.head{display:flex;justify-content:space-between;align-it
 <p id="authStatus" role="status" aria-live="polite">You are not signed in.</p>
 </div></section>
 
+<section id="profileSection">
+  <div class="head"><div><h2 data-profile="title">My profile</h2><p data-profile="lead">Your account details and demo points history.</p></div><span class="pill" data-profile="localBadge">Browser demo</span></div>
+  <div class="profile-grid">
+    <article class="profile-card">
+      <div class="profile-top"><div class="avatar" id="profileAvatar">N</div><div class="profile-meta"><strong id="profileName">Guest</strong><small id="profileEmail">Not signed in</small></div></div>
+      <p><strong data-profile="accountStatusLabel">Account status:</strong> <span id="profileStatus">Not signed in</span></p>
+      <p><strong data-profile="balanceLabel">Demo points:</strong> <span id="profilePoints">150</span></p>
+      <p class="muted" data-profile="privacyNote">This profile summary is displayed from your sign-in session. Demo points and history are saved only in this browser.</p>
+    </article>
+    <article class="profile-card"><div class="head"><h3 data-profile="historyTitle">Points history</h3><button class="btn secondary" id="clearHistoryBtn" type="button" data-profile="clearHistory">Clear history</button></div><div id="pointsHistory" class="history-list"><p class="history-empty">No activity yet.</p></div></article>
+  </div>
+</section>
+
 <section id="tasks"><div class="head"><div><h2 data-k="tasksTitle"></h2><p data-k="tasksLead"></p></div><button class="btn secondary" id="reset" data-k="reset"></button></div><div class="grid" id="taskGrid"></div><div class="notice" data-k="taskNotice"></div></section>
 <section id="how"><h2 data-k="howTitle"></h2><p data-k="howLead"></p><div class="steps"><article class="step"><h3 data-k="step1"></h3><p data-k="step1p"></p></article><article class="step"><h3 data-k="step2"></h3><p data-k="step2p"></p></article><article class="step"><h3 data-k="step3"></h3><p data-k="step3p"></p></article></div></section>
 <section class="columns"><article class="card"><h3 data-k="refTitle"></h3><p data-k="refText"></p><div class="field"><input id="ref" readonly value="https://example.com/?ref=DEMO" aria-label="Demo referral link"><button class="btn secondary" id="copy" data-k="copy"></button></div><p data-k="refNote"></p></article><article class="card"><h3 data-k="photoTitle"></h3><p data-k="photoText"></p><div class="upload"><label for="photo" data-k="choose"></label><br><input id="photo" type="file" accept="image/*"><img id="preview" alt="Local preview"><p id="photoStatus" data-k="noPhoto"></p></div></article></section>
@@ -62,11 +77,60 @@ en:{navTasks:"Tasks",navHow:"How it works",navAccount:"My account",start:"Explor
 ar:{navTasks:"المهام",navHow:"كيف يعمل",navAccount:"حسابي",start:"استكشف المهام",eyebrow:"✦ طريقة جديدة لكسب المكافآت",heroTitle:'مهام صغيرة.<br><span class="gradient">مكافآت ذات قيمة.</span>',heroLead:"اكتشف الأنشطة وأكمل المهام المؤهلة واجمع النقاط. هذه نسخة تجريبية إلى حين تجهيز شركاء المهام والدفع الحقيقيين.",browse:"تصفّح المهام التجريبية ←",learn:"كيف يعمل؟",freeNote:"التجربة مجانية ولا تحتاج إلى دفع أي مبلغ.",balanceTitle:"رصيدك التجريبي",demoOnly:"للتجربة فقط",points:"نقطة",goal:"هدف السحب التجريبي",rate:"1500 نقطة = دولار واحد (سعر مقترح)",tried:"المهام المجرّبة",perDollar:"نقطة لكل دولار*",minimum:"الحد الأدنى المقترح",balanceNote:"قيم مقترحة فقط؛ لا توجد أموال حقيقية في هذا النموذج ولا يمكن السحب منه.",authTitle:"حساب NovaEarn",authLead:"أنشئ حسابًا أو سجّل الدخول.",emailLabel:"البريد الإلكتروني",passwordLabel:"كلمة المرور",createAccount:"إنشاء حساب",signIn:"تسجيل الدخول",googleSignIn:"المتابعة باستخدام Google",signOut:"تسجيل الخروج",tasksTitle:"جرّب مهمة",tasksLead:"هذه الأنشطة أمثلة لشرح الواجهة فقط.",reset:"إعادة التجربة",taskNotice:"إكمال المهام والنقاط هنا محاكاة فقط. الموقع غير متصل بالمعلنين أو مزوّدي الاستطلاعات أو حسابات حقيقية أو نظام دفع.",howTitle:"كيف يُفترض أن يعمل NovaEarn؟",howLead:"خطوات واضحة بعد ربط الخدمات الحقيقية.",step1:"١. اختر مهمة",step1p:"تصفّح المهام التي يقدمها شركاء موثوقون أو حملات معتمدة.",step2:"٢. أكمل وتحقق",step2p:"يؤكد مزوّد المهمة إكمالها وفق الشروط قبل إضافة النقاط.",step3:"٣. اطلب السحب",step3p:"عند استيفاء الشروط، اطلب الدفع عبر وسيلة مدعومة.",refTitle:"معاينة رابط الإحالة",refText:"سيُنشأ رابط حقيقي بعد تنفيذ الحسابات وتتبع الإحالات.",copy:"نسخ",refNote:"هذا الرابط التجريبي لا يتتبع الإحالات.",photoTitle:"معاينة مهمة الصور",photoText:"اختر صورة لمعاينة مهمة رفع الصور. ستبقى على جهازك ولن تُرسل إلى أي مكان.",choose:"اختر صورة",noPhoto:"لم يتم اختيار صورة.",launchNotice:"قبل الإطلاق: اربط تسجيل دخول وقاعدة بيانات آمنين، وتأكد من سماح مزوّدي المهام بمواقع المكافآت، وجهّز وسيلة دفع ممولة، وانشر الشروط والخصوصية واختبر منع الاحتيال. لا تعد بالدفع قبل التحقق من الإيرادات والسحب.",checkTitle:"قبل الإطلاق الحقيقي",checkLead:"هذه خطوات لازمة وليست ميزات مفعّلة حاليًا.",footer:"نموذج تجريبي فقط • لا توجد مكافآت أو عمليات سحب حقيقية.",top:"العودة إلى الأعلى ↑",modalTitle:"مهمة تجريبية",modalText:"هذه المهمة غير مؤكدة من شريك ولا تمنح أموالًا حقيقية. هل تريد محاكاة إكمالها؟",continue:"متابعة التجربة",cancel:"إلغاء",taskAction:"جرّب المهمة",taskTag:"مهمة نموذجية",doneToast:"اكتملت المهمة وأُضيفت نقاط افتراضية.",copied:"تم نسخ الرابط التجريبي.",copyFail:"انسخ الرابط يدويًا بعد تحديده.",resetToast:"تمت إعادة ضبط التجربة.",photoSelected:"تم اختيار الصورة للمعاينة على جهازك فقط.",check:["ربط تسجيل دخول آمن وقاعدة بيانات","التحقق من شركاء المهام والبلدان المؤهلة","تنفيذ سجل نقاط آمن من الخادم ومنع الاحتيال","تأكيد مزوّد الدفع والرسوم والهوية وتوفر الأموال","نشر شروط الاستخدام والخصوصية ووسيلة للدعم","اختبار الهاتف وجميع الترجمات"],tasks:[["🧭","استكشف الموقع","تعرّف على النموذج التجريبي ومكان ظهور الميزات.",20],["💬","إبداء رأي تجريبي","عاين طريقة عرض مهمة قصيرة لإبداء الرأي.",35],["🖼️","قائمة الصور","عاين واجهة مهمة الصور على جهازك.",25],["🛡️","درس السلامة الرقمية","اقرأ نموذجًا لنشاط حول السلامة الرقمية.",30],["🤝","دليل الإحالة","تعرّف على طريقة عمل ميزة الإحالة مستقبلًا.",40]]},
 fr:{navTasks:"Tâches",navHow:"Fonctionnement",navAccount:"Mon compte",start:"Voir les tâches",eyebrow:"✦ Une nouvelle façon de gagner des récompenses",heroTitle:'De petites tâches.<br><span class="gradient">Des récompenses utiles.</span>',heroLead:"Découvrez des activités et accumulez des points. Ceci est une démo pendant la préparation des partenaires de tâches et de paiement.",browse:"Voir les tâches démo →",learn:"Comment ça marche",freeNote:"La découverte est gratuite. Aucun paiement n’est requis.",balanceTitle:"Votre solde démo",demoOnly:"DÉMO UNIQUEMENT",points:"points",goal:"Objectif de retrait démo",rate:"1 500 points = 1 $ (taux prévu)",tried:"Tâches essayées",perDollar:"Points / 1 $*",minimum:"Minimum prévu",balanceNote:"Valeurs prévues uniquement : aucun argent réel n’est disponible dans cette démo.",authTitle:"Compte NovaEarn",authLead:"Créez un compte ou connectez-vous.",emailLabel:"Adresse e-mail",passwordLabel:"Mot de passe",createAccount:"Créer un compte",signIn:"Se connecter",googleSignIn:"Continuer avec Google",signOut:"Se déconnecter",tasksTitle:"Essayer une tâche",tasksLead:"Ces exemples présentent uniquement l’interface.",reset:"Réinitialiser",taskNotice:"Les tâches et points sont simulés. Cette page n’est reliée ni à des annonceurs, ni à des fournisseurs d’enquêtes, ni à des comptes réels, ni à un système de paiement.",howTitle:"Comment NovaEarn devrait fonctionner",howLead:"Un parcours transparent une fois les services connectés.",step1:"1. Choisir une tâche",step1p:"Parcourez les tâches de partenaires vérifiés ou de campagnes approuvées.",step2:"2. Réaliser et vérifier",step2p:"Le fournisseur confirme la réalisation avant l’attribution des points.",step3:"3. Demander un paiement",step3p:"Lorsque les conditions sont remplies, demandez un paiement pris en charge.",refTitle:"Aperçu du lien de parrainage",refText:"Un vrai lien sera créé après la mise en place des comptes et du suivi.",copy:"Copier",refNote:"Ce lien provisoire ne suit aucun parrainage.",photoTitle:"Aperçu d’une tâche photo",photoText:"Choisissez une image pour prévisualiser une tâche. Elle reste sur votre appareil.",choose:"Choisir une image",noPhoto:"Aucune image sélectionnée.",launchNotice:"Avant le lancement : connecter une authentification et une base sécurisées, vérifier que les fournisseurs autorisent les sites de récompenses, préparer un moyen de paiement financé, publier les conditions et la confidentialité, puis tester l’antifraude. Ne promettez aucun paiement avant vérification des revenus.",checkTitle:"Avant le lancement réel",checkLead:"Étapes nécessaires, pas des fonctions déjà actives.",footer:"Prototype uniquement • Aucun paiement réel n’est actif.",top:"Retour en haut ↑",modalTitle:"Tâche démo",modalText:"Cette tâche exemple n’est pas vérifiée et ne rapporte pas d’argent réel. Simuler sa réalisation ?",continue:"Continuer la démo",cancel:"Annuler",taskAction:"Essayer",taskTag:"Tâche exemple",doneToast:"Tâche démo terminée. Points simulés ajoutés.",copied:"Lien démo copié.",copyFail:"Copiez manuellement le lien sélectionné.",resetToast:"Démo réinitialisée.",photoSelected:"Image sélectionnée pour un aperçu local uniquement.",check:["Connecter une authentification et une base sécurisées","Vérifier les partenaires et les pays admissibles","Créer un registre de points côté serveur et des contrôles antifraude","Confirmer prestataire de paiement, frais, identité et financement","Publier conditions, confidentialité et contact d’assistance","Tester mobile et toutes les traductions"],tasks:[["🧭","Découvrir la plateforme","Explorez la démo et repérez les futures fonctionnalités.",20],["💬","Avis exemple","Découvrez une courte tâche de retour.",35],["🖼️","Liste photo","Prévisualisez une tâche photo sur votre appareil.",25],["🛡️","Leçon de sécurité","Lisez un exemple sur la sécurité numérique.",30],["🤝","Guide de parrainage","Découvrez comment le parrainage pourrait fonctionner.",40]]}
 };
+const PT={
+en:{title:"My profile",lead:"Your account details and demo points history.",localBadge:"Browser demo",accountStatusLabel:"Account status:",balanceLabel:"Demo points:",privacyNote:"Your sign-in details come from Firebase. Demo points and history are saved only in this browser, not synced to your account.",historyTitle:"Points history",clearHistory:"Clear history",empty:"No activity yet.",guest:"Guest",notSigned:"Not signed in",signed:"Signed in",earned:"Demo task completed",reset:"Demo balance reset",cleared:"History cleared.",clearConfirm:"Clear your demo points history?",initial:"Starting demo balance"},
+ar:{title:"ملفي الشخصي",lead:"بيانات حسابك وسجل نقاطك التجريبية.",localBadge:"تجربة على الجهاز",accountStatusLabel:"حالة الحساب:",balanceLabel:"النقاط التجريبية:",privacyNote:"بيانات تسجيل الدخول من Firebase. أما النقاط والسجل التجريبيان فيُحفظان في هذا المتصفح فقط ولا تتم مزامنتهما مع حسابك.",historyTitle:"سجل النقاط",clearHistory:"مسح السجل",empty:"لا توجد أنشطة حتى الآن.",guest:"زائر",notSigned:"لم تسجّل الدخول",signed:"تم تسجيل الدخول",earned:"إكمال مهمة تجريبية",reset:"إعادة ضبط الرصيد التجريبي",cleared:"تم مسح السجل.",clearConfirm:"هل تريد مسح سجل النقاط التجريبي؟",initial:"الرصيد التجريبي الابتدائي"},
+fr:{title:"Mon profil",lead:"Détails du compte et historique des points démo.",localBadge:"Démo navigateur",accountStatusLabel:"État du compte :",balanceLabel:"Points démo :",privacyNote:"Les données de connexion viennent de Firebase. Les points et l’historique démo restent dans ce navigateur et ne sont pas synchronisés avec votre compte.",historyTitle:"Historique des points",clearHistory:"Effacer l’historique",empty:"Aucune activité pour le moment.",guest:"Invité",notSigned:"Non connecté",signed:"Connecté",earned:"Tâche démo terminée",reset:"Solde démo réinitialisé",cleared:"Historique effacé.",clearConfirm:"Effacer l’historique des points démo ?",initial:"Solde démo initial"}}
+const PROFILE_KEY="novaEarnDemoProfileV1";
+function readDemoState(){try{const saved=JSON.parse(localStorage.getItem(PROFILE_KEY)||"null");if(saved&&Number.isFinite(saved.points)&&Array.isArray(saved.history)){points=saved.points;done=Number.isFinite(saved.done)?saved.done:0;window.novaHistory=saved.history;return}}catch(e){}window.novaHistory=[{label:PT[lang].initial,delta:150,time:Date.now()}];}
+
+function saveDemoState() {
+  try {
+    localStorage.setItem(
+      PROFILE_KEY,
+      JSON.stringify({
+        points,
+        done,
+        history: window.novaHistory || []
+      })
+    );
+  } catch (e) {
+    console.warn("Could not save demo state locally", e);
+  }
+
+  if (
+    window.novaFirestoreReady &&
+    window.novaRemoteReady &&
+    window.novaCurrentUser &&
+    window.novaDb
+  ) {
+    const user = window.novaCurrentUser;
+
+    window.novaDb
+      .collection("users")
+      .doc(user.uid)
+      .collection("demoState")
+      .doc("current")
+      .set({
+        points: points,
+        done: done,
+        history: window.novaHistory || [],
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true })
+      .catch(function (error) {
+        console.error("Could not save points to Firestore:", error);
+      });
+  }
+}
+
+function addHistory(label,delta){window.novaHistory=window.novaHistory||[];window.novaHistory.unshift({label,delta,time:Date.now()});window.novaHistory=window.novaHistory.slice(0,30);saveDemoState();renderProfile()}
+function renderProfile(){const d=window.novaCurrentUser||null;const name=d?(d.displayName||((d.email||"").split("@")[0])||"NovaEarn user"):PT[lang].guest;$("profileName").textContent=name;$("profileEmail").textContent=d?(d.email||"Google account"):PT[lang].notSigned;$("profileAvatar").textContent=(name.trim()[0]||"N").toUpperCase();$("profileStatus").textContent=d?PT[lang].signed:PT[lang].notSigned;$("profilePoints").textContent=points.toLocaleString(lang);document.querySelectorAll("[data-profile]").forEach(e=>{const k=e.dataset.profile;if(PT[lang][k])e.textContent=PT[lang][k]});const list=$("pointsHistory");list.innerHTML="";const items=window.novaHistory||[];if(!items.length){const empty=document.createElement("p");empty.className="history-empty";empty.textContent=PT[lang].empty;list.appendChild(empty);return}items.forEach(item=>{const row=document.createElement("div");row.className="history-item";const left=document.createElement("div");const title=document.createElement("strong");title.textContent=item.label;const date=document.createElement("small");date.textContent=new Date(item.time).toLocaleString(lang);left.append(title,date);const value=document.createElement("strong");value.textContent=(item.delta>0?"+":"")+item.delta;value.style.color=item.delta>=0?"var(--cyan)":"#ff9caa";row.append(left,value);list.appendChild(row)})}
 let lang="en",points=150,done=0,pending=null;const $=id=>document.getElementById(id),tr=k=>T[lang][k]??T.en[k]??k;
+readDemoState();
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2400)}
-function render(){document.querySelectorAll("[data-k]").forEach(e=>{let k=e.dataset.k;if(T[lang][k]!==undefined)e.innerHTML=T[lang][k]});document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";$("taskGrid").innerHTML="";T[lang].tasks.forEach((t,i)=>{let c=document.createElement("article");c.className="task";c.innerHTML=`<div style="font-size:1.5rem">${t[0]}</div><h3>${t[1]}</h3><p>${t[2]}</p><div class="taskfoot"><span class="points">+${t[3]} ${tr("points")}</span><button class="btn secondary">${tr("taskAction")}</button></div><small class="muted">${tr("taskTag")} · Demo</small>`;c.querySelector("button").onclick=()=>{pending=i;$("backdrop").classList.add("open")};$("taskGrid").appendChild(c)});$("checklist").innerHTML="";T[lang].check.forEach(x=>{let p=document.createElement("p");p.textContent="□  "+x;p.className="muted";$("checklist").appendChild(p)});$("modalTitle").textContent=tr("modalTitle");$("modalText").textContent=tr("modalText");$("confirm").textContent=tr("continue");$("cancel").textContent=tr("cancel");$("photoStatus").textContent=$("photo").files.length?tr("photoSelected"):tr("noPhoto");update()}
-function update(){$("points").textContent=points.toLocaleString(lang);$("done").textContent=done;$("bar").style.width=Math.max(1,points/15000*100)+"%"}
-$("lang").onchange=e=>{lang=e.target.value;render()};$("confirm").onclick=()=>{if(pending!==null){points+=T[lang].tasks[pending][3];done++;update();toast(tr("doneToast"))}pending=null;$("backdrop").classList.remove("open")};$("cancel").onclick=()=>$("backdrop").classList.remove("open");$("reset").onclick=()=>{points=150;done=0;update();toast(tr("resetToast"))};$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("ref").value);toast(tr("copied"))}catch(e){$("ref").select();toast(tr("copyFail"))}};$("photo").onchange=e=>{let f=e.target.files[0];if(!f)return;if(!f.type.startsWith("image/"))return;let r=new FileReader();r.onload=()=>{$("preview").src=r.result;$("preview").style.display="block";$("photoStatus").textContent=tr("photoSelected")};r.readAsDataURL(f)};$("year").textContent=new Date().getFullYear();render();
+function render(){document.querySelectorAll("[data-k]").forEach(e=>{let k=e.dataset.k;if(T[lang][k]!==undefined)e.innerHTML=T[lang][k]});document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";$("taskGrid").innerHTML="";T[lang].tasks.forEach((t,i)=>{let c=document.createElement("article");c.className="task";c.innerHTML=`<div style="font-size:1.5rem">${t[0]}</div><h3>${t[1]}</h3><p>${t[2]}</p><div class="taskfoot"><span class="points">+${t[3]} ${tr("points")}</span><button class="btn secondary">${tr("taskAction")}</button></div><small class="muted">${tr("taskTag")} · Demo</small>`;c.querySelector("button").onclick=()=>{pending=i;$("backdrop").classList.add("open")};$("taskGrid").appendChild(c)});$("checklist").innerHTML="";T[lang].check.forEach(x=>{let p=document.createElement("p");p.textContent="□  "+x;p.className="muted";$("checklist").appendChild(p)});$("modalTitle").textContent=tr("modalTitle");$("modalText").textContent=tr("modalText");$("confirm").textContent=tr("continue");$("cancel").textContent=tr("cancel");$("photoStatus").textContent=$("photo").files.length?tr("photoSelected"):tr("noPhoto");update();renderProfile()}
+function update(){$("points").textContent=points.toLocaleString(lang);$("done").textContent=done;$("bar").style.width=Math.max(1,points/15000*100)+"%";saveDemoState();if($("profilePoints"))$("profilePoints").textContent=points.toLocaleString(lang)}
+$("lang").onchange=e=>{lang=e.target.value;render()};$("confirm").onclick=()=>{if(pending!==null){points+=T[lang].tasks[pending][3];done++;addHistory(T[lang].tasks[pending][1],T[lang].tasks[pending][3]);update();toast(tr("doneToast"))}pending=null;$("backdrop").classList.remove("open")};$("cancel").onclick=()=>$("backdrop").classList.remove("open");$("reset").onclick=()=>{points=150;done=0;window.novaHistory=[];addHistory(PT[lang].reset,0);update();toast(tr("resetToast"))};$("clearHistoryBtn").onclick=()=>{if(confirm(PT[lang].clearConfirm)){window.novaHistory=[];saveDemoState();renderProfile();toast(PT[lang].cleared)}};$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("ref").value);toast(tr("copied"))}catch(e){$("ref").select();toast(tr("copyFail"))}};$("photo").onchange=e=>{let f=e.target.files[0];if(!f)return;if(!f.type.startsWith("image/"))return;let r=new FileReader();r.onload=()=>{$("preview").src=r.result;$("preview").style.display="block";$("photoStatus").textContent=tr("photoSelected")};r.readAsDataURL(f)};$("year").textContent=new Date().getFullYear();render();
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -81,28 +145,13 @@ const firebaseConfig = {
   appId: "1:320515741153:web:ac66929e6601ab61e56ea0"
 };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const novaAuth = firebase.auth();
 
+const novaAuth = firebase.auth();
 const novaDb = firebase.firestore();
 
-async function saveUserProfile(user) {
-  const userRef = novaDb.collection("users").doc(user.uid);
-  const userDoc = await userRef.get();
-
-  const profile = {
-    uid: user.uid,
-    email: user.email || null,
-    displayName: user.displayName || null,
-    lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  if (!userDoc.exists) {
-    profile.createdAt =
-      firebase.firestore.FieldValue.serverTimestamp();
-  }
-
-  await userRef.set(profile, { merge: true });
-}
+window.novaDb = novaDb;
+window.novaFirestoreReady = true;
+window.novaRemoteReady = false;
 
 function setAuthStatus(message) {
   document.getElementById("authStatus").textContent = message;
@@ -110,23 +159,62 @@ function setAuthStatus(message) {
 
 function getAuthValues(){return {email:document.getElementById("authEmail").value.trim(),password:document.getElementById("authPassword").value};}
 
+async function loadNovaDemoState(user) {
+  window.novaRemoteReady = false;
+
+  const ref = window.novaDb
+    .collection("users")
+    .doc(user.uid)
+    .collection("demoState")
+    .doc("current");
+
+  try {
+    const snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      const data = snapshot.data();
+
+      if (Number.isFinite(data.points)) {
+        points = data.points;
+        done = Number.isFinite(data.done) ? data.done : 0;
+        window.novaHistory = Array.isArray(data.history)
+          ? data.history
+          : [];
+      }
+
+    } else {
+      await ref.set({
+        points: points,
+        done: done,
+        history: window.novaHistory || [],
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    window.novaRemoteReady = true;
+    saveDemoState();
+    update();
+    renderProfile();
+  } catch (error) {
+    console.error("Could not load demo points:", error);
+    setAuthStatus("Signed in, but points could not be synced.");
+  }
+}
+
 novaAuth.onAuthStateChanged(async user => {
+  window.novaCurrentUser = user || null;
+  window.novaRemoteReady = false;
+
   const logoutButton = document.getElementById("logoutBtn");
 
   if (user) {
-    logoutButton.hidden = false;
     setAuthStatus("Signed in as " + (user.email || user.displayName || "Google user"));
-
-    try {
-      await saveUserProfile(user);
-      setAuthStatus("Signed in. Account profile saved successfully.");
-    } catch (error) {
-      console.error("Profile save error:", error);
-      setAuthStatus("Signed in, but profile save failed: " + error.message);
-    }
+    logoutButton.hidden = false;
+    await loadNovaDemoState(user);
   } else {
     setAuthStatus("You are not signed in.");
     logoutButton.hidden = true;
+    renderProfile();
   }
 });
 
