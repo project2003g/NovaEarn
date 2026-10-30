@@ -157,6 +157,18 @@ function setAuthStatus(message) {
   document.getElementById("authStatus").textContent = message;
 }
 
+// إنشاء رابط إحالة خاص بالمستخدم
+function setReferralLink(user) {
+  const baseUrl =
+    window.location.origin + window.location.pathname;
+
+  if (user) {
+    document.getElementById("ref").value =
+      baseUrl + "?ref=" + encodeURIComponent(user.uid);
+  } else {
+    document.getElementById("ref").value = baseUrl;
+  }
+}
 function getAuthValues(){return {email:document.getElementById("authEmail").value.trim(),password:document.getElementById("authPassword").value};}
 
 async function loadNovaDemoState(user) {
@@ -208,10 +220,12 @@ novaAuth.onAuthStateChanged(async user => {
   const logoutButton = document.getElementById("logoutBtn");
 
   if (user) {
+    setReferralLink(user);
     setAuthStatus("Signed in as " + (user.email || user.displayName || "Google user"));
     logoutButton.hidden = false;
     await loadNovaDemoState(user);
   } else {
+    setReferralLink(null);
     setAuthStatus("You are not signed in.");
     logoutButton.hidden = true;
     renderProfile();
