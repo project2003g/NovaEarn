@@ -170,7 +170,24 @@ function setReferralLink(user) {
   }
 }
 function getAuthValues(){return {email:document.getElementById("authEmail").value.trim(),password:document.getElementById("authPassword").value};}
+async function saveReferralForNewUser(user, additionalUserInfo) {
+  if (!user || !additionalUserInfo || !additionalUserInfo.isNewUser) {
+    return;
+  }
 
+  const referralId = new URLSearchParams(window.location.search).get("ref");
+
+  if (!referralId || referralId === user.uid) {
+    return;
+  }
+
+  const userRef = novaDb.collection("users").doc(user.uid);
+
+  await userRef.set({
+    referredBy: referralId,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
+}
 async function loadNovaDemoState(user) {
   window.novaRemoteReady = false;
 
@@ -231,34 +248,71 @@ novaAuth.onAuthStateChanged(async user => {
     renderProfile();
   }
 });
+document.getElementById("signupBtn").addEventListener("click", async () => {
+  const { email, password } = getAuthValues();
 
-document.getElementById("signupBtn").addEventListener("click",async()=>{
-  const {email,password}=getAuthValues();
-  if(!email||password.length<6){setAuthStatus("Enter a valid email and a password of at least 6 characters.");return;}
-  try{await novaAuth.createUserWithEmailAndPassword(email,password);setAuthStatus("Account created successfully.");}
-  catch(error){setAuthStatus(error.message);}
-});
-document.getElementById("loginBtn").addEventListener("click",async()=>{
+  if (!email || password.length < 6) {
+    setAuthStatus("Enter a valid email and a password of at least 6 characters.");
+    return;
+  }
+
+  try {
+    const referralId = new URLSearchParams(window.location.search).get("ref");
+
+    const userCredential = await novaAuth.createUserWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+
+    const userRef = novaDb.collection("users").doc(user.uid);
+
+await userRef.set({
+  referredBy: referralId || null,
+  createdAt: firebase.firestore.FieldValue.serverTimestamp()
+}, { merge: true });
+    setAuthStatus("Account created successfully.");
+  } catch (error) {
+    setAuthStatus(error.message);
+  }
+});document.getElementById("loginBtn").addEventListener("click",async()=>{
   const {email,password}=getAuthValues();
   if(!email||!password){setAuthStatus("Enter your email and password.");return;}
   try{await novaAuth.signInWithEmailAndPassword(email,password);setAuthStatus("Signed in successfully.");}
   catch(error){setAuthStatus(error.message);}
 });
-document.getElementById("googleBtn").addEventListener("click",async()=>{
-  const provider=new firebase.auth.GoogleAuthProvider();
-  try{await novaAuth.signInWithPopup(provider);}
-  catch(error){
-    if(error.code==="auth/popup-blocked"||error.code==="auth/operation-not-supported-in-this-environment"){
-      try{await novaAuth.signInWithRedirect(provider);}
-      catch(redirectError){setAuthStatus(redirectError.message);}
-    }else{setAuthStatus(error.message);}
+document.getElementById("googleBtn").addEventListener("click", async () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  try {
+    const result = await novaAuth.signInWithPopup(provider);
+    await saveReferralForNewUser(result.user, result.additionalUserInfo);
+  } catch (error) {
+    if (
+      error.code === "auth/popup-blocked" ||
+      error.code === "auth/operation-not-supported-in-this-environment"
+    ) {
+      try {
+        await novaAuth.signInWithRedirect(provider);
+      } catch (redirectError) {
+        setAuthStatus(redirectError.message);
+      }
+    } else {
+      setAuthStatus(error.message);
+    }
   }
 });
 document.getElementById("logoutBtn").addEventListener("click",async()=>{
   try{await novaAuth.signOut();setAuthStatus("Signed out successfully.");}
   catch(error){setAuthStatus(error.message);}
 });
-novaAuth.getRedirectResult().catch(error=>setAuthStatus(error.message));
+novaAuth.getRedirectResult()
+  .then(async result => {
+    if (result && result.user) {
+      await saveReferralForNewUser(
+        result.user,
+        result.additionalUserInfo
+      );
+    }
+  })
+  .catch(error => setAuthStatus(error.message));
 console.log("NovaEarn Firebase initialized");
 </script>
 </body></html>
