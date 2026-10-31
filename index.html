@@ -162,9 +162,15 @@ function setReferralLink(user) {
   const baseUrl =
     window.location.origin + window.location.pathname;
 
+  const incomingReferral =
+    new URLSearchParams(window.location.search).get("ref");
+
   if (user) {
     document.getElementById("ref").value =
       baseUrl + "?ref=" + encodeURIComponent(user.uid);
+  } else if (incomingReferral) {
+    document.getElementById("ref").value =
+      baseUrl + "?ref=" + encodeURIComponent(incomingReferral);
   } else {
     document.getElementById("ref").value = baseUrl;
   }
