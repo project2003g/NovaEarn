@@ -182,11 +182,13 @@ async function saveReferralForNewUser(user, additionalUserInfo) {
   }
 
   const userRef = novaDb.collection("users").doc(user.uid);
-
-  await userRef.set({
-    referredBy: referralId,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge: true });
+await userRef.set({
+  uid: user.uid,
+  email: user.email || "",
+  displayName: user.displayName || "",
+  referredBy: referralId,
+  createdAt: firebase.firestore.FieldValue.serverTimestamp()
+}, { merge: true });
 }
 async function loadNovaDemoState(user) {
   window.novaRemoteReady = false;
@@ -265,6 +267,9 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
     const userRef = novaDb.collection("users").doc(user.uid);
 
 await userRef.set({
+  uid: user.uid,
+  email: user.email || "",
+  displayName: user.displayName || "",
   referredBy: referralId || null,
   createdAt: firebase.firestore.FieldValue.serverTimestamp()
 }, { merge: true });
