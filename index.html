@@ -1,4 +1,4 @@
-<!doctype html>
+ <!doctype html>
 <html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -67,7 +67,12 @@ section{padding:28px 0}.head{display:flex;justify-content:space-between;align-it
 
 <section id="tasks"><div class="head"><div><h2 data-k="tasksTitle"></h2><p data-k="tasksLead"></p></div><button class="btn secondary" id="reset" data-k="reset"></button></div><div class="grid" id="taskGrid"></div><div class="notice" data-k="taskNotice"></div></section>
 <section id="how"><h2 data-k="howTitle"></h2><p data-k="howLead"></p><div class="steps"><article class="step"><h3 data-k="step1"></h3><p data-k="step1p"></p></article><article class="step"><h3 data-k="step2"></h3><p data-k="step2p"></p></article><article class="step"><h3 data-k="step3"></h3><p data-k="step3p"></p></article></div></section>
-<section class="columns"><article class="card"><h3 data-k="refTitle"></h3><p data-k="refText"></p><div class="field"><input id="ref" readonly value="https://project2003g.github.io/NovaEarn/?ref=DEMO" aria-label="Demo referral link"><button class="btn secondary" id="copy" data-k="copy"></button></div><p data-k="refNote"></p></article><article class="card"><h3 data-k="photoTitle"></h3><p data-k="photoText"></p><div class="upload"><label for="photo" data-k="choose"></label><br><input id="photo" type="file" accept="image/*"><img id="preview" alt="Local preview"><p id="photoStatus" data-k="noPhoto"></p></div></article></section>
+<section class="columns"><article class="card"><h3 data-k="refTitle"></h3><p data-k="refText"></p><div class="field"><input id="ref" readonly value="https://project2003g.github.io/NovaEarn/?ref=DEMO" aria-label="Demo referral link"><button class="btn secondary" id="copy" data-k="copy"></button></div><p data-k="refNote"></p></article><article class="card"><h3 data-k="photoTitle"></h3><p data-k="photoText"></p><div class="upload">
+  <input id="photo" type="file" accept="image/*">
+  <label for="photo" data-k="choose">Choose an image</label>
+  <img id="preview" alt="Local preview">
+  <p id="photoStatus" data-k="noPhoto">No image selected.</p>
+</div></article></section>
 <div class="notice" data-k="launchNotice"></div><section class="card"><h3 data-k="checkTitle"></h3><p data-k="checkLead"></p><div id="checklist"></div></section></main>
 <footer class="wrap footer"><span>© <span id="year"></span> NovaEarn</span> · <span data-k="footer"></span> · <a href="#home" data-k="top"></a></footer>
 <div class="modalback" id="backdrop"><div class="modal"><h3 data-k="modalTitle"></h3><p data-k="modalText"></p><div class="actions"><button class="btn primary" id="confirm" data-k="continue"></button><button class="btn secondary" id="cancel" data-k="cancel"></button></div></div></div><div class="toast" id="toast"></div>
