@@ -107,34 +107,39 @@ function toast(message){$("toast").textContent=message;$("toast").classList.add(
 function readDemoState(){try{const saved=JSON.parse(localStorage.getItem(GUEST_PROFILE_KEY)||"null");if(saved&&Number.isFinite(saved.points)&&Array.isArray(saved.history)){points=saved.points;done=Number.isFinite(saved.done)?saved.done:0;window.novaHistory=saved.history;completedTasks=Array.isArray(saved.completedTasks)?saved.completedTasks:[];return}}catch(e){}points=150;done=0;completedTasks=[];window.novaHistory=[{label:ptr("initial"),delta:150,time:Date.now()}]}
 function saveDemoState(){const user=window.novaCurrentUser||null;const state={points,done,history:window.novaHistory||[],completedTasks};if(user){if(!window.novaRemoteReady||!window.novaStateReady||!window.novaDb)return;window.novaDb.collection("users").doc(user.uid).collection("demoState").doc("current").set({...state,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(e=>console.error("Could not save demo points:",e));return}try{localStorage.setItem(GUEST_PROFILE_KEY,JSON.stringify(state))}catch(e){console.warn("Could not save guest demo state locally",e)}}
 function addHistory(label,delta){window.novaHistory=window.novaHistory||[];window.novaHistory.unshift({label,delta,time:Date.now()});window.novaHistory=window.novaHistory.slice(0,30);saveDemoState();renderProfile()}
+function activeLanguage(){
+  return ["en","ar","fr"].includes(lang)?lang:"en";
+}
 function normalizeHistoryLabel(value){
-  return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-    .replace(/[^\p{L}\p{N}]+/gu," ").trim().toLocaleLowerCase();
+  return String(value??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^\p{L}\p{N}]+/gu," ").trim().toLowerCase();
 }
 function localizedHistoryLabel(label){
-  if(!label)return "";
+  if(label===null||label===undefined||label==="")return "";
   const raw=String(label).trim();
   const normalized=normalizeHistoryLabel(raw);
-  const aliases=[
-    ["explore the platform","استكشف الموقع","decouvrir la plateforme"],
-    ["sample feedback","إبداء رأي تجريبي","avis exemple"],
-    ["photo checklist","قائمة الصور","liste photo"],
-    ["safety lesson","درس السلامة الرقمية","lecon de securite"],
-    ["referral guide","دليل الإحالة","guide de parrainage"]
+  const language=activeLanguage();
+  const known=[
+    {index:0,names:["explore the platform","استكشف الموقع","decouvrir la plateforme"]},
+    {index:1,names:["sample feedback","إبداء رأي تجريبي","avis exemple"]},
+    {index:2,names:["photo checklist","قائمة الصور","liste photo"]},
+    {index:3,names:["safety lesson","درس السلامة الرقمية","lecon de securite"]},
+    {index:4,names:["referral guide","دليل الإحالة","guide de parrainage"]}
   ];
-  for(let i=0;i<aliases.length;i++){
-    if(aliases[i].some(value=>normalizeHistoryLabel(value)===normalized || normalized.includes(normalizeHistoryLabel(value))))
-      return T[lang].tasks[i][1];
+  for(const entry of known){
+    if(entry.names.some(name=>normalizeHistoryLabel(name)===normalized))
+      return T[language].tasks[entry.index][1];
   }
   const legacy={
-    initial:["Starting demo balance","الرصيد التجريبي الابتدائي","Solde démo initial"],
-    reset:["Demo balance reset","إعادة ضبط الرصيد التجريبي","Solde démo réinitialisé"],
-    earned:["Demo task completed","إكمال مهمة تجريبية","Tâche démo terminée"]
+    initial:{en:"Starting demo balance",ar:"الرصيد التجريبي الابتدائي",fr:"Solde démo initial"},
+    reset:{en:"Demo balance reset",ar:"إعادة ضبط الرصيد التجريبي",fr:"Solde démo réinitialisé"},
+    earned:{en:"Demo task completed",ar:"إكمال مهمة تجريبية",fr:"Tâche démo terminée"}
   };
-  for(const [key,values] of Object.entries(legacy)){
-    if(values.some(value=>normalizeHistoryLabel(value)===normalized))return PT[lang][key];
+  for(const [key,translations] of Object.entries(legacy)){
+    if(Object.values(translations).some(value=>normalizeHistoryLabel(value)===normalized))
+      return translations[language];
   }
-  if(/[\u0600-\u06FF]/.test(raw)&&lang!=="ar")return PT[lang].legacyActivity;
+  if(/[\u0600-\u06FF]/.test(raw)&&language!=="ar")return PT[language].legacyActivity;
   return raw;
 }
 function setAuthStatus(message){
@@ -161,19 +166,18 @@ function formatHistoryDate(value){
   else if(typeof value==="number")date=new Date(value);
   else date=new Date(value);
   if(!(date instanceof Date)||Number.isNaN(date.getTime()))return "";
-  const locale=lang==="ar"?"ar":lang==="fr"?"fr-FR":"en-US";
+  const language=activeLanguage();
+  const locale={ar:"ar",fr:"fr-FR",en:"en-US"}[language];
   try{
     return new Intl.DateTimeFormat(locale,{
       year:"numeric",month:"short",day:"numeric",
-      hour:"2-digit",minute:"2-digit",hour12:lang==="en"
+      hour:"2-digit",minute:"2-digit",hour12:language==="en"
     }).format(date);
-  }catch(error){
-    return date.toLocaleString(lang==="ar"?"ar":lang==="fr"?"fr-FR":"en-US");
-  }
+  }catch(error){return date.toLocaleString(locale)}
 }
-function renderProfile(){["clearHistoryBtn","reset"].forEach(id=>{const el=$(id);if(el){el.hidden=true;el.setAttribute("aria-hidden","true");el.style.setProperty("display","none","important");el.disabled=true}});const user=window.novaCurrentUser;const name=user?(user.displayName||((user.email||"").split("@")[0])||"NovaEarn user"):ptr("guest");$("profileName").textContent=name;$("profileEmail").textContent=user?(user.email||"Google account"):ptr("notSigned");$("profileAvatar").textContent=(name.trim()[0]||"N").toLocaleUpperCase();$("profileStatus").textContent=user?ptr("signed"):ptr("notSigned");$("profileStatus").lang=lang;$("profileStatus").setAttribute("data-current-language",lang);$("profilePoints").textContent=points.toLocaleString(lang);document.querySelectorAll("[data-profile]").forEach(el=>{const key=el.dataset.profile;if(ptr(key))el.textContent=ptr(key)});const list=$("pointsHistory");list.replaceChildren();const items=window.novaHistory||[];if(!items.length){const empty=document.createElement("p");empty.className="history-empty";empty.textContent=ptr("empty");list.appendChild(empty);return}items.forEach(item=>{const row=document.createElement("div");row.className="history-item";const left=document.createElement("div");const title=document.createElement("strong");title.textContent=localizedHistoryLabel(item.label);title.lang=lang;const date=document.createElement("small");date.lang=lang;date.setAttribute("data-current-language",lang);date.textContent=formatHistoryDate(item.time);left.append(title,date);const value=document.createElement("strong");value.textContent=(item.delta>0?"+":"")+item.delta;value.style.color=item.delta>=0?"var(--cyan)":"var(--danger)";row.append(left,value);list.appendChild(row)})}
+function renderProfile(){lang=activeLanguage();["clearHistoryBtn","reset"].forEach(id=>{const el=$(id);if(el){el.hidden=true;el.setAttribute("aria-hidden","true");el.style.setProperty("display","none","important");el.disabled=true}});const user=window.novaCurrentUser;const name=user?(user.displayName||((user.email||"").split("@")[0])||"NovaEarn user"):ptr("guest");$("profileName").textContent=name;$("profileEmail").textContent=user?(user.email||"Google account"):ptr("notSigned");$("profileAvatar").textContent=(name.trim()[0]||"N").toLocaleUpperCase();$("profileStatus").textContent=user?ptr("signed"):ptr("notSigned");$("profileStatus").lang=lang;$("profileStatus").setAttribute("data-current-language",lang);$("profilePoints").textContent=points.toLocaleString(lang);document.querySelectorAll("[data-profile]").forEach(el=>{const key=el.dataset.profile;if(ptr(key))el.textContent=ptr(key)});const list=$("pointsHistory");list.replaceChildren();const items=window.novaHistory||[];if(!items.length){const empty=document.createElement("p");empty.className="history-empty";empty.textContent=ptr("empty");list.appendChild(empty);return}items.forEach(item=>{const row=document.createElement("div");row.className="history-item";const left=document.createElement("div");const title=document.createElement("strong");title.textContent=localizedHistoryLabel(item.label);title.lang=lang;const date=document.createElement("small");date.lang=lang;date.setAttribute("data-current-language",lang);date.textContent=formatHistoryDate(item.time);left.append(title,date);const value=document.createElement("strong");value.textContent=(item.delta>0?"+":"")+item.delta;value.style.color=item.delta>=0?"var(--cyan)":"var(--danger)";row.append(left,value);list.appendChild(row)})}
 function update(){ $("points").textContent=points.toLocaleString(lang);$("done").textContent=done;$("bar").style.width=Math.max(1,Math.min(100,points/15000*100))+"%";$("bar").parentElement.setAttribute("aria-valuenow",String(points));if($("profilePoints"))$("profilePoints").textContent=points.toLocaleString(lang);saveDemoState()}
-function render(){["clearHistoryBtn","reset"].forEach(id=>{const el=$(id);if(el){el.hidden=true;el.setAttribute("aria-hidden","true");el.style.setProperty("display","none","important");el.disabled=true}});$("lang").value=lang;refreshAuthStatus();document.querySelectorAll("[data-k]").forEach(el=>{const key=el.dataset.k;if(T[lang][key]!==undefined)el.innerHTML=T[lang][key]});document.querySelectorAll("[data-profile]").forEach(el=>{const key=el.dataset.profile;if(ptr(key))el.textContent=ptr(key)});document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";$("authEmail").placeholder=tr("emailPlaceholder");$("authPassword").placeholder=tr("passwordPlaceholder");$("taskGrid").replaceChildren();T[lang].tasks.forEach((task,index)=>{const taskId="task_"+index;const isDone=completedTasks.includes(taskId);const card=document.createElement("article");card.className="task";const emoji=document.createElement("div");emoji.style.fontSize="1.5rem";emoji.textContent=task[0];const title=document.createElement("h3");title.textContent=task[1];const description=document.createElement("p");description.textContent=task[2];const foot=document.createElement("div");foot.className="taskfoot";const value=document.createElement("span");value.className="points";value.textContent="+"+task[3]+" "+tr("points");const button=document.createElement("button");button.className="btn secondary";button.type="button";button.textContent=isDone?tr("taskDone"):tr("taskAction");button.disabled=isDone;if(!isDone)button.addEventListener("click",()=>{if(!window.novaStateReady){toast(tr("waitPoints"));return}pending=index;$("backdrop").classList.add("open")});foot.append(value,button);const tag=document.createElement("small");tag.className="muted";tag.textContent=tr("taskTag")+" · "+tr("demoLabel");card.append(emoji,title,description,foot,tag);$("taskGrid").appendChild(card)});$("checklist").replaceChildren();T[lang].check.forEach(item=>{const p=document.createElement("p");p.className="muted";p.textContent="□  "+item;$("checklist").appendChild(p)});$("photoStatus").textContent=$("photo").files.length?tr("photoSelected"):tr("noPhoto");$("previewWrap").style.display=$("photo").files.length?"inline-block":"none";$("photo").setAttribute("aria-label",tr("choose")+" — "+tr("photoText"));$("photo").lang=lang;$("removePhoto").setAttribute("aria-label",tr("removePhotoLabel"));$("removePhoto").title=tr("removePhotoLabel");$("modalTitle").textContent=tr("modalTitle");$("modalText").textContent=tr("modalText");$("confirm").textContent=tr("continue");$("cancel").textContent=tr("cancel");$("authStatus").dir="auto";update();renderProfile()}
+function render(){lang=activeLanguage();["clearHistoryBtn","reset"].forEach(id=>{const el=$(id);if(el){el.hidden=true;el.setAttribute("aria-hidden","true");el.style.setProperty("display","none","important");el.disabled=true}});$("lang").value=lang;refreshAuthStatus();document.querySelectorAll("[data-k]").forEach(el=>{const key=el.dataset.k;if(T[lang][key]!==undefined)el.innerHTML=T[lang][key]});document.querySelectorAll("[data-profile]").forEach(el=>{const key=el.dataset.profile;if(ptr(key))el.textContent=ptr(key)});document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";$("authEmail").placeholder=tr("emailPlaceholder");$("authPassword").placeholder=tr("passwordPlaceholder");$("taskGrid").replaceChildren();T[lang].tasks.forEach((task,index)=>{const taskId="task_"+index;const isDone=completedTasks.includes(taskId);const card=document.createElement("article");card.className="task";const emoji=document.createElement("div");emoji.style.fontSize="1.5rem";emoji.textContent=task[0];const title=document.createElement("h3");title.textContent=task[1];const description=document.createElement("p");description.textContent=task[2];const foot=document.createElement("div");foot.className="taskfoot";const value=document.createElement("span");value.className="points";value.textContent="+"+task[3]+" "+tr("points");const button=document.createElement("button");button.className="btn secondary";button.type="button";button.textContent=isDone?tr("taskDone"):tr("taskAction");button.disabled=isDone;if(!isDone)button.addEventListener("click",()=>{if(!window.novaStateReady){toast(tr("waitPoints"));return}pending=index;$("backdrop").classList.add("open")});foot.append(value,button);const tag=document.createElement("small");tag.className="muted";tag.textContent=tr("taskTag")+" · "+tr("demoLabel");card.append(emoji,title,description,foot,tag);$("taskGrid").appendChild(card)});$("checklist").replaceChildren();T[lang].check.forEach(item=>{const p=document.createElement("p");p.className="muted";p.textContent="□  "+item;$("checklist").appendChild(p)});$("photoStatus").textContent=$("photo").files.length?tr("photoSelected"):tr("noPhoto");$("previewWrap").style.display=$("photo").files.length?"inline-block":"none";$("photo").setAttribute("aria-label",tr("choose")+" — "+tr("photoText"));$("photo").lang=lang;$("removePhoto").setAttribute("aria-label",tr("removePhotoLabel"));$("removePhoto").title=tr("removePhotoLabel");$("modalTitle").textContent=tr("modalTitle");$("modalText").textContent=tr("modalText");$("confirm").textContent=tr("continue");$("cancel").textContent=tr("cancel");$("authStatus").dir="auto";update();renderProfile()}
 function authErrorMessage(error){const code=error&&error.code||"";const map={"auth/email-already-in-use":"emailInUse","auth/invalid-email":"invalidEmail","auth/weak-password":"weakPassword","auth/wrong-password":"wrongPassword","auth/invalid-credential":"wrongPassword","auth/user-not-found":"userNotFound","auth/too-many-requests":"tooManyRequests","auth/network-request-failed":"networkError","auth/popup-blocked":"popupBlocked"};return tr(map[code]||"unknownError")}
 function getAuthValues(){return{email:$("authEmail").value.trim(),password:$("authPassword").value}}
 function setReferralLink(user){const base=window.location.origin+window.location.pathname;const incoming=new URLSearchParams(window.location.search).get("ref");$("ref").value=user?base+"?ref="+encodeURIComponent(user.uid):incoming?base+"?ref="+encodeURIComponent(incoming):base}
